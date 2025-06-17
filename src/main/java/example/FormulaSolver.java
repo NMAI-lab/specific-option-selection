@@ -1,13 +1,14 @@
 package example;
 
 import jason.asSyntax.*;
+import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
+import org.logicng.solvers.MiniSat;
+import org.logicng.solvers.SATSolver;
 
-import java.util.*;
 
 public class FormulaSolver {
 
@@ -23,7 +24,7 @@ public class FormulaSolver {
         } else if (logicalFormula instanceof RelExpr) {
             return expressionToFormula((RelExpr) logicalFormula);
         } else {
-            return p.parse(logicalFormula.toString()).cnf();
+            return p.parse(encodeLiteral(logicalFormula.toString())).cnf();
         }
     }
 
@@ -56,11 +57,9 @@ public class FormulaSolver {
 
         switch (op) {
             case eq:
-                // X == Y -> equivalence(X, Y)
-                return f.equivalence(f.variable(String.valueOf(term1)), f.variable(String.valueOf(term2)));
+                return f.variable(encodeEquality(term1.toString(), term2.toString()));
             case dif:
-                // X \\== Y -> not(equivalence(X, Y))
-                return f.not(f.equivalence(f.variable(String.valueOf(term1)), f.variable(String.valueOf(term2))));
+                return f.not(f.variable(encodeEquality(term1.toString(), term2.toString())));
             case unify:
                 // X = Y -> equivalence(X, Y)
                 return f.equivalence(f.variable(String.valueOf(term1)), f.variable(String.valueOf(term2)));
@@ -82,21 +81,33 @@ public class FormulaSolver {
         }
     }
 
-    public Formula substituteVariables(Formula formula) {
-        SortedSet<Variable> vars = formula.variables();
-        int varIndex = 0;
-        for (Variable var : vars) {
-            if (startsWithUppercase(var)){
-                formula = formula.substitute(var, f.variable("X"+varIndex));
-                varIndex++;
-            }
-        }
-        return formula;
+
+    public static String encodeLiteral(String predicate) {
+        return predicate.replaceAll("[() ,]", "_").replaceAll("_+", "_").replaceAll("_$", "");
     }
 
-    public static boolean startsWithUppercase(Variable var) {
-        String varName = var.name();  // Obtenir le nom de la variable
-        return !varName.isEmpty() && Character.isUpperCase(varName.charAt(0));
+    public static String encodeEquality(String t1, String t2) {
+        return encodeLiteral(t1) + "_eq_" + encodeLiteral(t2);
+    }
+
+    public Boolean implies(Formula f1, Formula f2) throws ParserException {
+        FormulaFactory f = new FormulaFactory();
+        PropositionalParser p = new PropositionalParser(f);
+
+        // formula to cnf
+        Formula A = p.parse(f1.toString()).cnf();
+        Formula B = p.parse(f2.toString()).cnf();
+
+        Formula implication = f.implication(A, B);
+        Formula negated = implication.negate();
+
+        SATSolver solver = MiniSat.miniSat(f);
+        solver.add(negated);
+
+        if(solver.sat() == Tristate.FALSE){
+            return true;
+        }
+        return false;
     }
 
 }

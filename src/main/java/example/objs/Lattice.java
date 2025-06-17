@@ -2,9 +2,7 @@ package example.objs;
 
 import jason.asSyntax.Literal;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Lattice {
@@ -73,4 +71,50 @@ public class Lattice {
                 .sorted(Comparator.comparingInt(node -> node.getMoreSpecific().size()))
                 .collect(Collectors.toList());
     }
+
+    public boolean isMoreSpecific(LiteralNode node1, Literal node2) {
+        return isMoreSpecificRecursive(node1, node2, new HashSet<>());
+    }
+
+    private boolean isMoreSpecificRecursive(LiteralNode current, Literal target, Set<LiteralNode> visited) {
+        if (current.hasMoreSpecific(target)) {
+            return true;
+        }
+
+        visited.add(current);
+
+        for (LiteralNode child : current.getMoreSpecific()) {
+            if (!visited.contains(child)) {
+                if (isMoreSpecificRecursive(child, target, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    public boolean isMoreGeneral(LiteralNode node1, Literal node2) {
+        return isMoreGeneralRecursive(node1, node2, new HashSet<>());
+    }
+
+    private boolean isMoreGeneralRecursive(LiteralNode current, Literal target, Set<LiteralNode> visited) {
+        if (current.hasMoreGeneral(target)) {
+            return true;
+        }
+
+        visited.add(current);
+
+        for (LiteralNode parent : current.getMoreGeneral()) {
+            if (!visited.contains(parent)) {
+                if (isMoreGeneralRecursive(parent, target, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 }

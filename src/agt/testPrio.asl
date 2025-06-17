@@ -1,12 +1,12 @@
 !start.
 
 a.
-pre(b).
+poss(b).
 test(a,a).
 test(a).
 test(b,d).
-pre(test(a,a)).
-pre(test(a)).
+poss(test(a,a)).
+poss(test(a)).
 
 +!start <-
     !goal.
@@ -14,16 +14,19 @@ pre(test(a)).
 +!goal : test(b,X) <-
     .print("X option").
 
-+!goal : test(D,X) <-
++!goal : test(D,X) | poss(test(X)) <-
+    .print("X option").
+
++!goal : test(X) & X \== b <-
     .print("X option").
 
 +!goal : test(X) <-
     .print("X option").
 
-+!goal : pre(test(X)) <-
++!goal : poss(test(X)) <-
     .print("poss(a) option").
 
-+!goal : pre(test(D,X)) <-
++!goal : test(D,X) <-
     .print("poss(a) option").
 
 +!goal : a <-
@@ -32,6 +35,6 @@ pre(test(a)).
 +!goal : X <-
     .print("a option").
 
-+!goal : pre(X) <-
++!goal : poss(X) <-
     .print("a option").
 
