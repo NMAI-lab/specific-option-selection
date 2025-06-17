@@ -31,23 +31,23 @@ public class LogicalFormulaHandler {
     public Boolean isMoreSpecific(Agent ag, LogicalFormula f1, LogicalFormula f2) throws ParserException {
         FormulaSolver solver = new FormulaSolver();
 
-        Pair<LogicalFormula, LogicalFormula> p = alignVariables(f1,f2);
+        LogicalFormula f1Expanded = expandFormula(f1, ag);
+        LogicalFormula f2Expanded = expandFormula(f2, ag);
 
-        f1 = p.getFirst();
-        f2 = p.getSecond();
+        Pair<LogicalFormula, LogicalFormula> p = alignVariables(f1Expanded,f2Expanded);
+
+        LogicalFormula f1ExpandedAligned = p.getFirst();
+        LogicalFormula f2ExpandedAligned = p.getSecond();
 
         Unifier unifier = new Unifier();
 
-        LogicalFormula f1expanded = expandFormula(f1, ag);
-        LogicalFormula f2expanded = expandFormula(f2, ag);
-
-        Iterator<Unifier> f2Unifs = f2.logicalConsequence(ag, unifier);
+        Iterator<Unifier> f2Unifs = f2ExpandedAligned.logicalConsequence(ag, unifier);
 
         while (f2Unifs.hasNext()) {
             Unifier f2Unif = f2Unifs.next();
 
-            Term term1 = f1expanded.capply(f2Unif);
-            Term term2 = f2expanded.capply(f2Unif);
+            Term term1 = f1ExpandedAligned.capply(f2Unif);
+            Term term2 = f2ExpandedAligned.capply(f2Unif);
 
             Formula formula1 = solver.expressionToFormula((LogicalFormula) term1);
             Formula formula2 = solver.expressionToFormula((LogicalFormula) term2);

@@ -15,7 +15,7 @@ MAS subclass {
     environment: example.Env(10)
     //executionControl: jason.control.ExecutionControlGUI
 
-    agents: test
+    agents: newTest
             agentClass example.TestAgent;
 
     aslSourcePath: "src/agt";
