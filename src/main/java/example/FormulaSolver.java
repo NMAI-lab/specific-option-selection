@@ -16,15 +16,19 @@ public class FormulaSolver {
     private final PropositionalParser p = new PropositionalParser(f);
 
     public FormulaSolver() {
+        new PropositionalParser(new FormulaFactory());
     }
 
+    /*
+    This function returns a LogicNG Formula corresponding to a given Jason LogicalFormula
+     */
     public Formula expressionToFormula(LogicalFormula logicalFormula) throws ParserException {
         if (logicalFormula instanceof LogExpr) {
             return expressionToFormula((LogExpr) logicalFormula);
         } else if (logicalFormula instanceof RelExpr) {
             return expressionToFormula((RelExpr) logicalFormula);
         } else {
-            return p.parse(encodeLiteral(logicalFormula.toString())).cnf();
+            return expressionToFormula((Literal) logicalFormula);
         }
     }
 
@@ -81,33 +85,36 @@ public class FormulaSolver {
         }
     }
 
-
-    public static String encodeLiteral(String predicate) {
-        return predicate.replaceAll("[() ,]", "_").replaceAll("_+", "_").replaceAll("_$", "");
+    public Formula expressionToFormula(Literal literal) throws ParserException {
+        Literal literalCleared = literal.clearAnnots();
+        return p.parse(encodeLiteral(literalCleared.toString())).cnf();
     }
 
+    /*
+    This function allows to get the string corresponding to a given Jason Literal
+     */
+    public static String encodeLiteral(String predicate) {
+        return predicate.replaceAll("[(). ,]", "_").replaceAll("_+", "_").replaceAll("^_+", "").replaceAll("_$", "");
+    }
+
+    /*
+    This function allows to get the string corresponding to an equality between two strings
+     */
     public static String encodeEquality(String t1, String t2) {
         return encodeLiteral(t1) + "_eq_" + encodeLiteral(t2);
     }
 
-    public Boolean implies(Formula f1, Formula f2) throws ParserException {
-        FormulaFactory f = new FormulaFactory();
-        PropositionalParser p = new PropositionalParser(f);
-
-        // formula to cnf
-        Formula A = p.parse(f1.toString()).cnf();
-        Formula B = p.parse(f2.toString()).cnf();
-
-        Formula implication = f.implication(A, B);
+    /*
+    This function determines if the formula f1 implies f2 using LogicNG
+     */
+    public Boolean implies(Formula f1, Formula f2) {
+        Formula implication = f.implication(f1, f2); // builds A => B
+        // builds ¬(A => B) equivalent to A ∧ ¬B
         Formula negated = implication.negate();
 
         SATSolver solver = MiniSat.miniSat(f);
         solver.add(negated);
 
-        if(solver.sat() == Tristate.FALSE){
-            return true;
-        }
-        return false;
+        return solver.sat() == Tristate.FALSE;
     }
-
 }

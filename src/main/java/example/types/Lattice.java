@@ -1,6 +1,7 @@
-package example.objs;
+package example.types;
 
 import jason.asSyntax.Literal;
+import jason.asSyntax.LiteralImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ public class Lattice {
     }
 
     public LiteralNode findOrCreateLiteralNode(Literal literal) {
+        if(literal == null)
+            literal = new LiteralImpl("null");
         LiteralNode literalNode = findLiteralNode(literal);
         if(literalNode == null){
             literalNode = new LiteralNode(literal);

@@ -1,4 +1,4 @@
-package example.objs;
+package example.types;
 
 import jason.asSyntax.Literal;
 
@@ -8,16 +8,16 @@ import java.util.Set;
 public class LiteralNode {
 
     private Literal value;
-    private Set<LiteralNode> moreSpecific = new HashSet<>();
-    private Set<LiteralNode> moreGeneral= new HashSet<>();
+    private Set<LiteralNode> listOfMoreSpecificNodes = new HashSet<>();
+    private Set<LiteralNode> listOfMoreGeneralNodes= new HashSet<>();
 
     public LiteralNode(Literal value) {
         this.value = value;
     }
 
     public LiteralNode(Set<LiteralNode> moreGeneral, Set<LiteralNode> moreSpecific) {
-        this.moreGeneral = moreGeneral;
-        this.moreSpecific = moreSpecific;
+        this.listOfMoreGeneralNodes = moreGeneral;
+        this.listOfMoreSpecificNodes = moreSpecific;
     }
 
     public Literal getValue() {
@@ -25,23 +25,23 @@ public class LiteralNode {
     }
 
     public Set<LiteralNode> getMoreSpecific() {
-        return moreSpecific;
+        return listOfMoreSpecificNodes;
     }
 
     public Set<LiteralNode> getMoreGeneral() {
-        return moreGeneral;
+        return listOfMoreGeneralNodes;
     }
 
     public void addMoreGeneral(LiteralNode n) {
-        moreGeneral.add(n);
+        listOfMoreGeneralNodes.add(n);
     }
 
     public void addMoreSpecific(LiteralNode n) {
-        moreSpecific.add(n);
+        listOfMoreSpecificNodes.add(n);
     }
 
     public boolean hasMoreSpecific(Literal target) {
-        for (LiteralNode node : moreSpecific) {
+        for (LiteralNode node : listOfMoreSpecificNodes) {
             if (node.getValue().equals(target)) {
                 return true;
             }
@@ -50,7 +50,7 @@ public class LiteralNode {
     }
 
     public boolean hasMoreGeneral(Literal target) {
-        for (LiteralNode node : moreGeneral) {
+        for (LiteralNode node : listOfMoreGeneralNodes) {
             if (node.getValue().equals(target)) {
                 return true;
             }

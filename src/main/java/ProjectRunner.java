@@ -8,7 +8,7 @@ public class ProjectRunner {
 
         // default to epistemic-agents.mas2j
         if(args.length == 0)
-            args = new String[] {"subclass.mas2j"};
+            args = new String[] {"selectOpt.mas2j"};
 
         RunLocalMAS.main(args);
     }
