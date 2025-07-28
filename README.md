@@ -13,4 +13,3 @@ It prioritizes the most specific plan based on the logical relationship between 
         ./gradlew build
 
 - Run the src/java/ProjectRunner file.
-- 
